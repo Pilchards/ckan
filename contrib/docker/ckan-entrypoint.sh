@@ -23,14 +23,13 @@ write_config () {
   export CKAN_REDIS_URL=${CKAN_REDIS_URL}
   export CKAN_STORAGE_PATH=${CKAN_STORAGE_PATH}
   export CKAN_SITE_URL=${CKAN_SITE_URL}
+  export CKAN_REDIRECT_TO=${CKAN_REDIRECT_TO}
 
   ckan-paster make-config ckan "$CONFIG"
 
   # In case want to use the config from ckan.ini use this
-  #ckan-paster --plugin=ckan config-tool "$CONFIG" -e \
-  #    "sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}" \
-  #    "solr_url = ${CKAN_SOLR_URL}" \
-  #    "ckan.redis.url = ${CKAN_REDIS_URL}" \
+  ckan-paster --plugin=ckan config-tool "$CONFIG" -e "ckan.redirect_to = ${CKAN_REDIRECT_TO}" "sqlalchemy.url = ${CKAN_SQLALCHEMY_URL}" "solr_url = ${CKAN_SOLR_URL}"
+  #     "ckan.redis.url = ${CKAN_REDIS_URL}" \
   #    "ckan.storage_path = ${CKAN_STORAGE_PATH}" \
   #    "ckan.site_url = ${CKAN_SITE_URL}"
 }
@@ -70,7 +69,7 @@ if [ ! -e "$CONFIG" ]; then
       abort "ERROR: no CKAN_SOLR_URL specified and linked container called 'solr' was not found"
     fi
   fi
-    
+
   if [ -z "$CKAN_REDIS_URL" ]; then
     if ! CKAN_REDIS_URL=$(link_redis_url); then
       abort "ERROR: no CKAN_REDIS_URL specified and linked container called 'redis' was not found"
