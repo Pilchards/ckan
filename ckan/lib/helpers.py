@@ -158,7 +158,8 @@ def redirect_to(*args, **kw):
                 args)
     _url = url_for(*uargs, **kw)
     if _url.startswith('/'):
-        _url = str(config['ckan.site_url'].rstrip('/') + _url)
+
+        _url = str(config['ckan.site_url'].replace("5000", config['ckan.redirect_to'].strip()).rstrip('/') + _url)
 
     if is_flask_request():
         return _flask_redirect(_url)
