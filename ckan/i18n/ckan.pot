@@ -4400,3 +4400,6 @@ msgstr ""
 msgid "eg. http://example.com (if blank uses resource url)"
 msgstr ""
 
+#: ckan/templates/user/dashboard.html
+msgid "Transaction Record"
+msgstr ""

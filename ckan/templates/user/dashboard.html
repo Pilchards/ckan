@@ -15,6 +15,9 @@
         <div class="content_action">
           {% link_for _('Edit settings'), controller='user', action='edit', id=user.name, class_='btn', icon='cog' %}
         </div>
+        <div class="content_action">
+          <a class="btn" href="http://www.baidu.com">{{ _('Transaction record') }}</a>
+        </div>
         <ul class="nav nav-tabs">
           {{ h.build_nav_icon('user_dashboard', _('News feed')) }}
           {{ h.build_nav_icon('user_dashboard_datasets', _('My Datasets')) }}
