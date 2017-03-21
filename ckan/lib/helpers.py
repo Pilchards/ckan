@@ -17,6 +17,7 @@ import pprint
 import copy
 import urlparse
 from urllib import urlencode
+import requests
 
 from paste.deploy import converters
 from webhelpers.html import escape, HTML, literal, tags, tools
@@ -44,7 +45,7 @@ import ckan.authz as authz
 import ckan.plugins as p
 import ckan
 
-from ckan.common import _, ungettext, c, request, session, json
+from ckan.common import _, ungettext, c, request, session, json, config
 
 log = logging.getLogger(__name__)
 
@@ -127,6 +128,35 @@ def _datestamp_to_datetime(datetime_):
 
     return datetime_
 
+
+@core_helper
+def get_billing_api(url, request_type='get', msg = '{"msg": "error"}', **params):
+
+    billing_api = "http://" + \
+                  config['ckan.billing_host'].strip() + \
+                  ":" + \
+                  config['ckan.billing_port'].strip() + \
+                  "/" + \
+                  config['ckan.billing_project_name'].strip() + \
+                  "/"
+    url = billing_api + url.lstrip("/")
+
+    if request_type.strip() == "post":
+        if params:
+            try:
+                msg = requests.post(url, data=params, timeout=3)
+            except Exception, e:
+                pass
+                # raise e
+        else :
+            raise Exception("Post request need params")
+    elif request_type.strip() == "get":
+        try:
+            msg = requests.get(url, timeout=3)
+        except Exception, e:
+            pass
+            # raise e
+    return msg
 
 @core_helper
 def redirect_to(*args, **kw):
