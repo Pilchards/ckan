@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+import json
 import logging
 
 from ckan.common import config
@@ -237,9 +237,21 @@ class UserController(base.BaseController):
         try:
             data_dict = logic.clean_dict(unflatten(
                 logic.tuplize_dict(logic.parse_params(request.params))))
+
             context['message'] = data_dict.get('log_message', '')
             captcha.check_recaptcha(request)
             user = get_action('user_create')(context, data_dict)
+            for times in range(3):
+                msg = h.get_billing_api("api/RegisterAndSession/register", request_type='post', ckan_user_id=user.get('id'),
+                                       ckan_user_name=user.get('name'), role=user.get('sysadmin'))
+                decoded = json.loads(msg)
+                if decoded['msg'] == 'error':
+                    log.debug('register as %r failed %r times - initial the  session failed', user.get('name'), times)
+                elif decoded['msg'] == 'success':
+                    break
+                else:
+                    log.debug('register as %r failed %r times - api/RegisterAndSession/register return wrong data', user.get('name'), times)
+
         except NotAuthorized:
             abort(403, _('Unauthorized to create user %s') % '')
         except NotFound, e:
@@ -433,6 +445,17 @@ class UserController(base.BaseController):
 
     def logout(self):
         # Do any plugin logout stuff
+        for times in range(3):
+            msg = h.get_billing_api("api/RegisterAndSession/exit", request_type='post')
+            decoded = json.loads(msg)
+            if decoded['msg'] == 'error':
+                log.debug('exit as %r failed %r times - initial the  session failed', c.userobj.get('name'), times)
+            elif decoded['msg'] == 'success':
+                break
+            else:
+                log.debug('exit as %r failed %r times - api/RegisterAndSession/exit return wrong data',
+                          c.userobj.get('name'), times)
+
         for item in p.PluginImplementations(p.IAuthenticator):
             item.logout()
         url = h.url_for(controller='user', action='logged_out_page',
