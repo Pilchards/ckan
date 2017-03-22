@@ -54,6 +54,7 @@ resource_table = Table(
     Column('cache_last_updated', types.DateTime),
     Column('url_type', types.UnicodeText),
     Column('extras', _types.JsonDictType),
+    Column('price', types.UnicodeText),
 )
 
 vdm.sqlalchemy.make_table_stateful(resource_table)

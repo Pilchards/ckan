@@ -19,7 +19,9 @@ resource_view_table = sa.Table(
     sa.Column('description', sa.types.UnicodeText, nullable=True),
     sa.Column('view_type', sa.types.UnicodeText, nullable=False),
     sa.Column('order', sa.types.Integer, nullable=False),
-    sa.Column('config', _types.JsonDictType))
+    sa.Column('config', _types.JsonDictType),
+    sa.Column('price', sa.types.UnicodeText)
+)
 
 
 class ResourceView(domain_object.DomainObject):
