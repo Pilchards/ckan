@@ -28,6 +28,17 @@
       {{ form.input('name', id='field-name', label=_('Name'), placeholder=_('eg. January 2011 Gold Prices'), value=data.name, error=errors.name, classes=['control-full']) }}
     {% endblock %}
 
+    {% block basic_fields_price %}
+      {{ form.input('price', id='field-price', label=_('Price'), placeholder=_('How much is it?'), value='0', error=errors.price, classes=['control-full']) }}
+    {% endblock %}
+
+    {% if data.times %}
+        {% block basic_fields_times %}
+            {{ form.input('times', id='field-api', label=_('Times '), placeholder=_('How many times you can request?'), value=data.times, error=errors.times, classes=['control-full']) }}
+        {% endblock %}
+    {% endif %}
+
+
     {% block basic_fields_description %}
       {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('Some useful notes about the data'), value=data.description, error=errors.description) }}
     {% endblock %}

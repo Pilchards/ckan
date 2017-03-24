@@ -105,6 +105,7 @@ this.ckan.module('autocomplete', function (jQuery) {
      * Returns a jqXHR promise.
      */
     getCompletions: function (string, fn) {
+
       var parts  = this.options.source.split('?');
       var end    = parts.pop();
       var source = parts.join('?') + encodeURIComponent(string) + end;
@@ -134,6 +135,7 @@ this.ckan.module('autocomplete', function (jQuery) {
      * Returns nothing.
      */
     lookup: function (string, fn) {
+
       var module = this;
 
       // Cache the last searched term otherwise we'll end up searching for
@@ -158,6 +160,37 @@ this.ckan.module('autocomplete', function (jQuery) {
 
           module._last = module.getCompletions(term, fn);
         }, this.options.interval);
+
+
+            var timeLine;
+            $.each($('#resource-edit label'), function(i, e) {
+                if ($(e).html().trim() == 'Times') {
+                    timeLine = $(e).parent();
+                }
+            });
+
+            if (string == 'api') {
+                if (!timeLine) {
+                    var htmlOfAPIInput = '';
+                    htmlOfAPIInput += '<div class="control-group control-full" style="opacity: 0;">';
+                    htmlOfAPIInput += '<label class="control-label" for="field-api">';
+                    htmlOfAPIInput += 'Times';
+                    htmlOfAPIInput += '</label>';
+                    htmlOfAPIInput += '<div class="controls">';
+                    htmlOfAPIInput += '<input id="field-api" type="text" name="times" value="0" placeholder="How many times you can request?">';
+                    htmlOfAPIInput += '</div>';
+                    htmlOfAPIInput += '</div>';
+                    var newLine = $(htmlOfAPIInput).insertBefore($('#resource-edit').find('.control-group.control-full').eq(4));
+                    newLine.animate({opacity:1},300,'linear');
+                }
+            } else {
+                timeLine.animate({opacity:0},300,'linear',function () {
+                  timeLine.remove();
+                });
+            }
+
+
+
 
         // This forces the ajax throbber to appear, because we've called the
         // callback already and that hides the throbber
