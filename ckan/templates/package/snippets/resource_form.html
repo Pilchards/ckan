@@ -29,12 +29,12 @@
     {% endblock %}
 
     {% block basic_fields_price %}
-      {{ form.input('price', id='field-price', label=_('Price'), placeholder=_('How much is it?'), value='0', error=errors.price, classes=['control-full']) }}
+      {{ form.input('price', id='field-price', label=_('Price'), placeholder=_('How much is it?'), value=data.price, error=errors.price, classes=['control-full']) }}
     {% endblock %}
 
     {% if data.times %}
         {% block basic_fields_times %}
-            {{ form.input('times', id='field-api', label=_('Times '), placeholder=_('How many times you can request?'), value=data.times, error=errors.times, classes=['control-full']) }}
+            {{ form.input('times', id='field-api', label=_('Times'), placeholder=_('How many times you can request?'), value=data.times, error=errors.times, classes=['control-full']) }}
         {% endblock %}
     {% endif %}
 
