@@ -16,6 +16,15 @@
       {% endif %}
     </p>
   {% endblock %}
+
+  {% block resource_item_price %}
+  {% if res.price %}
+  <div class="content_action">
+    price:{{res.price}}
+  </div>
+  {% endif %}
+  {% endblock %}
+
   {% block resource_item_explore %}
   {% if not url_is_edit %}
   <div class="dropdown btn-group">
