@@ -224,6 +224,7 @@ class GroupController(base.BaseController):
             abort(404, _('Group not found'))
 
         self._read(id, limit, group_type)
+        h.get_price_range(c.page.items)
         return render(self._read_template(c.group_dict['type']),
                       extra_vars={'group_type': group_type})
 

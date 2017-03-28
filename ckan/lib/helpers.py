@@ -130,6 +130,21 @@ def _datestamp_to_datetime(datetime_):
 
 
 @core_helper
+def get_price_range(packages):
+    if len(packages) == 0:
+        return None
+    list_price = []
+    for package in packages:
+        if len(package.get(u'resources')) == 0:
+            package[u'price_range'] = []
+        else:
+            for resource in package.get(u'resources'):
+                list_price.append(int(resource.get(u'price')))
+            package[u'price_range'] = [min(list_price), max(list_price)]
+    return None
+
+
+@core_helper
 def get_billing_api(url, request_type='get', msg = '{"msg": "error"}', **params):
 
     billing_api = "http://" + \

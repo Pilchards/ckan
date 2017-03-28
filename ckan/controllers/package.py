@@ -22,6 +22,7 @@ import ckan.lib.plugins
 import ckan.lib.uploader as uploader
 import ckan.plugins as p
 import ckan.lib.render
+import ckan.authz as authz
 
 from ckan.common import OrderedDict, _, json, request, c, response
 from home import CACHE_PARAMETERS
@@ -309,6 +310,7 @@ class PackageController(base.BaseController):
         self._setup_template_variables(context, {},
                                        package_type=package_type)
 
+        h.get_price_range(c.page.items)
         return render(self._search_template(package_type),
                       extra_vars={'dataset_type': package_type})
 
@@ -1151,6 +1153,19 @@ class PackageController(base.BaseController):
             if content_type:
                 response.headers['Content-Type'] = content_type
             response.status = status
+
+            # msg = h.get_billing_api("api/FileAndAPIDownLoad/download", request_type='post', ckan_user_id=c.userobj.id,
+            #                         ckan_user_name=c.userobj.name, role=authz.is_sysadmin(c.user))
+            # decoded = json.loads(msg)
+            # if decoded['msg'] == 'error':
+            #     abort(404, _('Deduct members point failed'))
+            # elif decoded['msg'] == 'Insufficient integration':
+            #     abort(404, _('The balance of account is insufficient'))
+            # elif decoded['msg'] == 'success':
+            #     return app_iter
+            # else:
+            #     raise(503, 'api/FileAndAPIDownLoad/download Internal Error')
+
             return app_iter
         elif 'url' not in rsc:
             abort(404, _('No download is available'))
