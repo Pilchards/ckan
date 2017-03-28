@@ -54,7 +54,7 @@
         {% block resource_content %}
           {% block resource_read_title %}<h1 class="page-heading">{{ h.resource_display_name(res) | truncate(50) }}</h1>{% endblock %}
 
-          {% block resource_read_price %}<p class="price">{{_('Price: ')}}{{ res.price }}</p>{% endblock %}
+          {% block resource_read_price %}<p class="price">{{_('Price')}}:{{ res.price }}</p>{% endblock %}
 
           {% block resource_read_url %}
             {% if c.userobj.sysadmin %}

@@ -4493,3 +4493,14 @@ msgstr "例如. http://example.com （如果为空将使用资源路径）"
 msgid "Transaction record"
 msgstr "交易记录"
 
+#: ckan/controllers/package.py
+msgid "The balance of account is insufficient"
+msgstr "账户余额不足"
+
+#: ckan/controllers/package.py
+msgid "Deduct members point failed"
+msgstr "扣除余额失败"
+
+#: ckan/templates/package/resource_read.html
+msgid "Price"
+msgstr "价格"
