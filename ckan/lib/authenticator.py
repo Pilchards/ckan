@@ -39,7 +39,6 @@ class UsernamePasswordAuthenticator(object):
             elif decoded['msg'] == 'success':
                 return user.name
             else:
+                return user.name
                 log.debug('Login as %r failed - api/RegisterAndSession/login return wrong data', login)
-        # else:
-        #     return user.name
         return None
