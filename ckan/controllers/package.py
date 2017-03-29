@@ -1143,6 +1143,7 @@ class PackageController(base.BaseController):
             upload = uploader.get_resource_uploader(rsc)
             filepath = upload.get_path(rsc['id'])
             fileapp = paste.fileapp.FileApp(filepath)
+
             try:
                 status, headers, app_iter = request.call_application(fileapp)
             except OSError:
@@ -1154,19 +1155,19 @@ class PackageController(base.BaseController):
                 response.headers['Content-Type'] = content_type
             response.status = status
 
-            # msg = h.get_billing_api("api/FileAndAPIDownLoad/download", request_type='post', ckan_user_id=c.userobj.id,
-            #                         ckan_user_name=c.userobj.name, role=authz.is_sysadmin(c.user))
-            # decoded = json.loads(msg)
-            # if decoded['msg'] == 'error':
-            #     abort(404, _('Deduct members point failed'))
-            # elif decoded['msg'] == 'Insufficient integration':
-            #     abort(404, _('The balance of account is insufficient'))
-            # elif decoded['msg'] == 'success':
-            #     return app_iter
-            # else:
-            #     raise(503, 'api/FileAndAPIDownLoad/download Internal Error')
-
-            return app_iter
+            msg = h.get_billing_api("api/FileAndAPIDownLoad/download", request_type='post', ckan_user_id=c.userobj.id,
+                                    ckan_user_name=c.userobj.name, role=authz.is_sysadmin(c.user))
+            decoded = json.loads(msg)
+            print decoded
+            if decoded['msg'] == 'error':
+                abort(404, _('Deduct members point failed'))
+            elif decoded['msg'] == 'Insufficient integration':
+                abort(404, _('The balance of account is insufficient'))
+            elif decoded['msg'] == 'success':
+                return app_iter
+            else:
+                abort(503, 'api/FileAndAPIDownLoad/download Internal Error')
+            # return app_iter
         elif 'url' not in rsc:
             abort(404, _('No download is available'))
         h.redirect_to(rsc['url'])
