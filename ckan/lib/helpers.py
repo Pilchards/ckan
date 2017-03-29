@@ -159,6 +159,7 @@ def get_billing_api(url, request_type='get', msg = '{"msg": "error"}', **params)
     if request_type.strip() == "post":
         try:
             msg = requests.post(url, data=params, timeout=3)
+            msg = msg.text
         except Exception, e:
             pass
             # raise e
@@ -166,6 +167,7 @@ def get_billing_api(url, request_type='get', msg = '{"msg": "error"}', **params)
     elif request_type.strip() == "get":
         try:
             msg = requests.get(url, timeout=3)
+            msg = msg.text
         except Exception, e:
             pass
             # raise e
