@@ -243,7 +243,7 @@ class UserController(base.BaseController):
             user = get_action('user_create')(context, data_dict)
             for times in range(3):
                 msg = h.get_billing_api("api/RegisterAndSession/register", request_type='post', ckan_user_id=user.get('id'),
-                                       ckan_user_name=user.get('name'), role=user.get('sysadmin'))
+                                       ckan_user_name=user.get('name'), role=authz.is_sysadmin(user.get('name')))
                 decoded = json.loads(msg)
                 if decoded['msg'] == 'error':
                     log.debug('register as %r failed %r times - initial the  session failed', user.get('name'), times)
