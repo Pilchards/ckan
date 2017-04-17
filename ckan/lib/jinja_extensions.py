@@ -26,6 +26,9 @@ def empty_and_escape(value):
     else:
         return escape(value)
 
+def other_extend(list1,list2):
+    list1.extend(list2)
+    return list1
 ### Tags
 
 def regularise_html(html):

@@ -112,7 +112,7 @@ def table_dict_save(table_dict, ModelClass, context):
     This will use an existing object if "id" is supplied OR if any unique
     constraints are met. e.g supplying just a tag name will get out that tag obj.
     '''
-
+    #print 'table_dict_save'
     model = context["model"]
     session = context["session"]
 
@@ -124,7 +124,7 @@ def table_dict_save(table_dict, ModelClass, context):
 
     if id:
         obj = session.query(ModelClass).get(id)
-
+    #print obj
     if not obj:
         unique_constraints = get_unique_constraints(table, context)
         for constraint in unique_constraints:
@@ -143,8 +143,7 @@ def table_dict_save(table_dict, ModelClass, context):
     for key, value in table_dict.iteritems():
         if isinstance(value, list):
             continue
+        #print key
         setattr(obj, key, value)
-
     session.add(obj)
-
     return obj

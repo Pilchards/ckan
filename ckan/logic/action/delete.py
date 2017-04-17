@@ -329,7 +329,6 @@ def _group_or_org_delete(context, data_dict, is_org=False):
 
     '''
     from sqlalchemy import or_
-
     model = context['model']
     user = context['user']
     id = _get_or_bust(data_dict, 'id')
@@ -341,9 +340,7 @@ def _group_or_org_delete(context, data_dict, is_org=False):
 
     revisioned_details = 'Group: %s' % group.name
 
-    if is_org:
-        _check_access('organization_delete', context, data_dict)
-    else:
+    if not is_org:
         _check_access('group_delete', context, data_dict)
 
     # organization delete will delete all datasets for that org
@@ -397,6 +394,10 @@ def organization_delete(context, data_dict):
     :type id: string
 
     '''
+    _check_access('organization_delete', context, data_dict)
+    return _group_or_org_delete(context, data_dict, is_org=True)
+def organization2_delete(context, data_dict):
+    _check_access('organization2_delete', context, data_dict)
     return _group_or_org_delete(context, data_dict, is_org=True)
 
 def _group_or_org_purge(context, data_dict, is_org=False):

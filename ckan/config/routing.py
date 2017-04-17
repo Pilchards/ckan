@@ -346,6 +346,35 @@ def make_map():
     lib_plugins.register_package_plugins(map)
     lib_plugins.register_group_plugins(map)
 
+    with SubMapper(map, controller='organization2') as m:
+        m.connect('organizations2_index', '/organization2', action='index')
+        m.connect('/organization2/list', action='list')
+        m.connect('/organization2/new', action='new')
+        m.connect('/organization2/{action}/{id}',
+                  requirements=dict(action='|'.join([
+                      'delete',
+                      'admins',
+                      'member_new',
+                      'member_delete',
+                      'history'
+                  ])))
+        m.connect('organization2_activity', '/organization2/activity/{id}/{offset}',
+                  action='activity', ckan_icon='clock-o')
+        m.connect('organization2_read', '/organization2/{id}', action='read')
+        m.connect('organization2_about', '/organization2/about/{id}',
+                  action='about', ckan_icon='info-circle')
+        m.connect('organization2_read', '/organization2/{id}', action='read',
+                  ckan_icon='sitemap')
+        m.connect('organization2_edit', '/organization2/edit/{id}',
+                  action='edit', ckan_icon='pencil-square-o')
+        m.connect('organization2_members', '/organization2/members/{id}',
+                  action='members', ckan_icon='users')
+        m.connect('organization2_bulk_process',
+                  '/organization2/bulk_process/{id}',
+                  action='bulk_process', ckan_icon='sitemap')
+    lib_plugins.register_package_plugins(map)
+    lib_plugins.register_group_plugins(map)
+
     # tags
     map.redirect('/tags', '/tag')
     map.redirect('/tags/{url:.*}', '/tag/{url}')
@@ -372,6 +401,8 @@ def make_map():
                   action='dashboard_groups', ckan_icon='users')
         m.connect('user_dashboard_organizations', '/dashboard/organizations',
                   action='dashboard_organizations', ckan_icon='building-o')
+        m.connect('user_dashboard_organizations2', '/dashboard/organizations2',
+                  action='dashboard_organizations2', ckan_icon='building-o')
         m.connect('/dashboard/{offset}', action='dashboard')
         m.connect('user_follow', '/user/follow/{id}', action='follow')
         m.connect('/user/unfollow/{id}', action='unfollow')

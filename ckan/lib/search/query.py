@@ -294,6 +294,7 @@ class PackageSearchQuery(SearchQuery):
 
         May raise SearchQueryError or SearchError.
         '''
+        #print 'run'
         assert isinstance(query, (dict, MultiDict))
         # check that query keys are valid
         if not set(query.keys()) <= VALID_SOLR_PARAMETERS:
@@ -395,7 +396,6 @@ class PackageSearchQuery(SearchQuery):
         self.facets = solr_response.facets.get('facet_fields', {})
         for field, values in six.iteritems(self.facets):
             self.facets[field] = dict(zip(values[0::2], values[1::2]))
-
         return {'results': self.results, 'count': self.count}
 
 

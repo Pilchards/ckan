@@ -70,6 +70,9 @@ def group_list_available(context, data_dict):
 def organization_list(context, data_dict):
     # List of all active organizations are visible by default
     return {'success': True}
+def organization2_list(context, data_dict):
+    # List of all active organizations are visible by default
+    return {'success': True}
 
 def organization_list_for_user(context, data_dict):
     return {'success': True}
@@ -172,7 +175,8 @@ def group_show(context, data_dict):
 
 def organization_show(context, data_dict):
     return authz.is_authorized('group_show', context, data_dict)
-
+def organization2_show(context, data_dict):
+    return authz.is_authorized('group_show', context, data_dict)
 
 def vocabulary_show(context, data_dict):
     # Allow viewing of vocabs by default

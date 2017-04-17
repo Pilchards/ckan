@@ -129,8 +129,17 @@ def organization_update(context, data_dict):
                         (user, group.id)}
     else:
         return {'success': True}
-
-
+def organization2_update(context, data_dict):
+    group = logic_auth.get_group_object(context, data_dict)
+    user = context['user']
+    authorized = authz.has_user_permission_for_group_or_org(
+        group.id, user, 'update')
+    if not authorized:
+        return {'success': False,
+                'msg': _('User %s not authorized to edit organization %s') %
+                       (user, group.id)}
+    else:
+        return {'success': True}
 def group_change_state(context, data_dict):
     user = context['user']
     group = logic_auth.get_group_object(context, data_dict)

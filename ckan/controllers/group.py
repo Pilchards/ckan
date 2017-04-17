@@ -202,6 +202,7 @@ class GroupController(base.BaseController):
                       extra_vars={'group_type': group_type})
 
     def read(self, id, limit=20):
+        #print 'read'
         group_type = self._ensure_controller_matches_group_type(
             id.split('@')[0])
 
@@ -238,7 +239,10 @@ class GroupController(base.BaseController):
         q = c.q = request.params.get('q', '')
         # Search within group
         if c.group_dict.get('is_organization'):
-            q += ' owner_org:"%s"' % c.group_dict.get('id')
+            if group_type == 'organization':
+                q += ' owner_org:"%s"' % c.group_dict.get('id')
+            else:
+                q += ' owner_org2:"%s"' % c.group_dict.get('id')
         else:
             q += ' groups:"%s"' % c.group_dict.get('name')
 
@@ -301,7 +305,7 @@ class GroupController(base.BaseController):
                                     'tags': _('Tags'),
                                     'res_format': _('Formats'),
                                     'license_id': _('Licenses')}
-
+            print default_facet_titles
             for facet in h.facets():
                 if facet in default_facet_titles:
                     facets[facet] = default_facet_titles[facet]
@@ -312,7 +316,6 @@ class GroupController(base.BaseController):
             self._update_facet_titles(facets, group_type)
 
             c.facet_titles = facets
-
             data_dict = {
                 'q': q,
                 'fq': '',
@@ -327,7 +330,6 @@ class GroupController(base.BaseController):
             context_ = dict((k, v) for (k, v) in context.items()
                             if k != 'schema')
             query = get_action('package_search')(context_, data_dict)
-
             c.page = h.Page(
                 collection=query['results'],
                 page=page,
@@ -337,7 +339,7 @@ class GroupController(base.BaseController):
             )
 
             c.group_dict['package_count'] = query['count']
-
+            #print query
             c.search_facets = query['search_facets']
             c.search_facets_limits = {}
             for facet in c.search_facets.keys():
@@ -345,7 +347,6 @@ class GroupController(base.BaseController):
                             config.get('search.facets.default', 10)))
                 c.search_facets_limits[facet] = limit
             c.page.items = query['results']
-
             c.sort_by_selected = sort_by
 
         except search.SearchError, se:
@@ -592,7 +593,6 @@ class GroupController(base.BaseController):
 
     def delete(self, id):
         group_type = self._ensure_controller_matches_group_type(id)
-
         if 'cancel' in request.params:
             self._redirect_to_this_controller(action='edit', id=id)
 
