@@ -243,7 +243,7 @@ class UserController(base.BaseController):
             user = get_action('user_create')(context, data_dict)
             for times in range(3):
                 msg = h.get_billing_api("api/RegisterAndSession/register", request_type='post', ckan_user_id=user.get('id'),
-                                       ckan_user_name=user.get('name'), role=authz.is_sysadmin(user.get('name')))
+                                       ckan_user_name=user.get('name'), role=user.get('sysadmin'))
                 decoded = json.loads(msg)
                 if decoded['msg'] == 'error':
                     log.debug('register as %r failed %r times - initial the  session failed', user.get('name'), times)
@@ -342,6 +342,7 @@ class UserController(base.BaseController):
         c.is_myself = True
         c.show_email_notifications = asbool(
             config.get('ckan.activity_streams_email_notifications'))
+
         c.form = render(self.edit_user_form, extra_vars=vars)
 
         return render('user/edit.html')
@@ -701,6 +702,14 @@ class UserController(base.BaseController):
         # dashboard page.
         get_action('dashboard_mark_activities_old')(context, {})
 
+        billing_api = "http://" + \
+                  config['ckan.billing_host'].strip() + \
+                  ":" + \
+                  config['ckan.billing_port'].strip() + \
+                  "/"+ \
+                  config['ckan.billing_project_name'].strip() + \
+                  "/"
+        c.billing_href = billing_api
         return render('user/dashboard.html')
 
     def dashboard_datasets(self):
