@@ -48,7 +48,7 @@ def group_list_dictize(obj_list, context,
     if with_package_counts and 'dataset_counts' not in group_dictize_context:
         # 'dataset_counts' will already be in the context in the case that
         # group_list_dictize recurses via group_dictize (groups in groups)
-        group_dictize_context['dataset_counts'] = get_group_dataset_counts()
+        group_dictize_context['dataset_counts'] = None
     if context.get('with_capacity'):
         group_list = [group_dictize(group, group_dictize_context,
                                     capacity=capacity, **group_dictize_options)
@@ -332,7 +332,7 @@ def get_group_dataset_counts():
     '''For all public groups, return their dataset counts, as a SOLR facet'''
     query = search.PackageSearchQuery()
     q = {'q': '+capacity:public',
-         'fl': 'groups', 'facet.field': ['groups', 'owner_org'],
+         'fl': 'groups', 'facet.field': ['groups', 'owner_org','owner_org2'],
          'facet.limit': -1, 'rows': 1}
     query.run(q)
     return query.facets
@@ -374,9 +374,12 @@ def group_dictize(group, context,
                 'facet': 'false',
                 'rows': 0,
             }
-
+            #print group_.is_organization
             if group_.is_organization:
-                q['fq'] = 'owner_org:"{0}"'.format(group_.id)
+                if group.type == 'organization':
+                    q['fq'] = 'owner_org:"{0}"'.format(group_.id)
+                else:
+                    q['fq'] = 'owner_org2:"{0}"'.format(group_.id)
             else:
                 q['fq'] = 'groups:"{0}"'.format(group_.name)
 
@@ -414,7 +417,11 @@ def group_dictize(group, context,
                 # Use the pre-calculated package_counts passed in.
                 facets = dataset_counts
                 if group.is_organization:
-                    package_count = facets['owner_org'].get(group.id, 0)
+                    if group.type == 'organization':
+                        package_count = facets['owner_org'].get(group.id, 0)
+                    else:
+                        package_count = facets['owner_org2'].get(group.id, 0)
+
                 else:
                     package_count = facets['groups'].get(group.name, 0)
 

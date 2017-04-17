@@ -64,7 +64,8 @@ def activity_stream_string_changed_group(context, activity):
 
 def activity_stream_string_changed_organization(context, activity):
     return _("{actor} updated the organization {organization}")
-
+def activity_stream_string_changed_organization2(context, activity):
+    return _("{actor} updated the organization2 {organization2}")
 def activity_stream_string_changed_package(context, activity):
     return _("{actor} updated the dataset {dataset}")
 
@@ -82,6 +83,8 @@ def activity_stream_string_deleted_group(context, activity):
 
 def activity_stream_string_deleted_organization(context, activity):
     return _("{actor} deleted the organization {organization}")
+def activity_stream_string_deleted_organization2(context, activity):
+    return _("{actor} deleted the organization2 {organization2}")
 
 def activity_stream_string_deleted_package(context, activity):
     return _("{actor} deleted the dataset {dataset}")
@@ -98,7 +101,8 @@ def activity_stream_string_new_group(context, activity):
 
 def activity_stream_string_new_organization(context, activity):
     return _("{actor} created the organization {organization}")
-
+def activity_stream_string_new_organization2(context, activity):
+    return _("{actor} created the organization2 {organization2}")
 def activity_stream_string_new_package(context, activity):
     return _("{actor} created the dataset {dataset}")
 
@@ -131,6 +135,7 @@ activity_snippet_functions = {
     'tag': get_snippet_tag,
     'group': get_snippet_group,
     'organization': get_snippet_organization,
+    'organization2': get_snippet_organization,
     'extra': get_snippet_extra,
     'resource': get_snippet_resource,
 }
@@ -141,17 +146,20 @@ activity_stream_string_functions = {
   'added tag': activity_stream_string_added_tag,
   'changed group': activity_stream_string_changed_group,
   'changed organization': activity_stream_string_changed_organization,
+  'changed organization2': activity_stream_string_changed_organization2,
   'changed package': activity_stream_string_changed_package,
   'changed package_extra': activity_stream_string_changed_package_extra,
   'changed resource': activity_stream_string_changed_resource,
   'changed user': activity_stream_string_changed_user,
   'deleted group': activity_stream_string_deleted_group,
   'deleted organization': activity_stream_string_deleted_organization,
+  'deleted organization2': activity_stream_string_deleted_organization2,
   'deleted package': activity_stream_string_deleted_package,
   'deleted package_extra': activity_stream_string_deleted_package_extra,
   'deleted resource': activity_stream_string_deleted_resource,
   'new group': activity_stream_string_new_group,
   'new organization': activity_stream_string_new_organization,
+  'new organization2': activity_stream_string_new_organization2,
   'new package': activity_stream_string_new_package,
   'new package_extra': activity_stream_string_new_package_extra,
   'new resource': activity_stream_string_new_resource,
@@ -184,8 +192,11 @@ activity_stream_string_icons = {
   'follow user': 'user',
   'follow group': 'users',
   'changed organization': 'briefcase',
+  'changed organization2': 'briefcase',
   'deleted organization': 'briefcase',
+  'deleted organization2': 'briefcase',
   'new organization': 'briefcase',
+  'new organization2': 'briefcase',
   'undefined': 'certificate', # This is when no activity icon can be found
 }
 
@@ -208,6 +219,7 @@ def activity_list_to_html(context, activity_stream, extra_vars):
     for activity in activity_stream:
         detail = None
         activity_type = activity['activity_type']
+        #print activity_type
         # Some activity types may have details.
         if activity_type in activity_stream_actions_with_detail:
             details = logic.get_action('activity_detail_list')(context=context,
@@ -252,5 +264,6 @@ def activity_list_to_html(context, activity_stream, extra_vars):
                               'timestamp': activity['timestamp'],
                               'is_new': activity.get('is_new', False)})
     extra_vars['activities'] = activity_list
+    #print activity_list
     return literal(base.render('activity_streams/activity_stream_items.html',
         extra_vars=extra_vars))

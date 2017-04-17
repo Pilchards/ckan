@@ -589,7 +589,6 @@ def _link_to(text, *args, **kwargs):
         if icon:
             text = literal('<i class="fa fa-%s"></i> ' % icon) + text
         return text
-
     icon = kwargs.pop('icon', None)
     class_ = _link_class(kwargs)
     return tags.link_to(
@@ -1713,14 +1712,15 @@ def groups_available(am_member=False):
 
 @core_helper
 def organizations_available(
-        permission='manage_group', include_dataset_count=False):
+        permission='manage_group', include_dataset_count=False,Organization = 'organization'):
     '''Return a list of organizations that the current user has the specified
     permission for.
     '''
     context = {'user': c.user}
     data_dict = {
         'permission': permission,
-        'include_dataset_count': include_dataset_count}
+        'include_dataset_count': include_dataset_count,
+        'type':Organization}
     return logic.get_action('organization_list_for_user')(context, data_dict)
 
 
@@ -1765,6 +1765,7 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
     :rtype: string
 
     '''
+    #print 'dashboard_activity_stream'
     context = {'model': model, 'session': model.Session, 'user': c.user}
 
     if filter_type:
@@ -1776,7 +1777,7 @@ def dashboard_activity_stream(user_id, filter_type=None, filter_id=None,
         }
         action_function = logic.get_action(action_functions.get(filter_type))
         return action_function(context, {'id': filter_id, 'offset': offset})
-    else:
+    else:#dashboard走这
         return logic.get_action('dashboard_activity_list_html')(
             context, {'offset': offset})
 

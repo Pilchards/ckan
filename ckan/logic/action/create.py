@@ -127,6 +127,8 @@ def package_create(context, data_dict):
     :rtype: dictionary
 
     '''
+    print "package_create"
+    #print data_dict
     model = context['model']
     user = context['user']
 
@@ -184,9 +186,8 @@ def package_create(context, data_dict):
         user_obj = model.User.by_name(user.decode('utf8'))
         if user_obj:
             data['creator_user_id'] = user_obj.id
-
     pkg = model_save.package_dict_save(data, context)
-
+    #print pkg
     # Needed to let extensions know the package and resources ids
     model.Session.flush()
     data['id'] = pkg.id
@@ -200,7 +201,11 @@ def package_create(context, data_dict):
     context_org_update['add_revision'] = False
     _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
-                                             'organization_id': pkg.owner_org})
+                                             'organization_id': pkg.owner_org,
+                                             'organization2_id': data_dict['owner_org2']})
+    #_get_action('package_owner_org_update')(context_org_update,
+    #                                        {'id': pkg.id,
+    #                                         'organization_id': data_dict['owner_org2']},other_org=True)
 
     for item in plugins.PluginImplementations(plugins.IPackageController):
         item.create(pkg)
@@ -276,6 +281,7 @@ def resource_create(context, data_dict):
     :rtype: dictionary
 
     '''
+    print "resource_create"
     model = context['model']
     user = context['user']
 
@@ -306,7 +312,7 @@ def resource_create(context, data_dict):
             data_dict['size'] = upload.filesize
 
     pkg_dict['resources'].append(data_dict)
-
+    #print pkg_dict
     try:
         context['defer_commit'] = True
         context['use_cache'] = False
@@ -646,7 +652,7 @@ def _group_or_org_create(context, data_dict, is_org=False):
 
     data, errors = lib_plugins.plugin_validate(
         group_plugin, context, data_dict, schema,
-        'organization_create' if is_org else 'group_create')
+        group_type+'_create' if is_org else 'group_create')
     log.debug('group_create validate_errs=%r user=%s group=%s data_dict=%r',
               errors, context.get('user'), data_dict.get('name'), data_dict)
 
@@ -676,7 +682,8 @@ def _group_or_org_create(context, data_dict, is_org=False):
         item.create(group)
 
     if is_org:
-        activity_type = 'new organization'
+        activity_type = 'new '+group_type
+        #print activity_type
     else:
         activity_type = 'new group'
 
@@ -861,7 +868,10 @@ def organization_create(context, data_dict):
     data_dict.setdefault('type', 'organization')
     _check_access('organization_create', context, data_dict)
     return _group_or_org_create(context, data_dict, is_org=True)
-
+def organization2_create(context, data_dict):
+    data_dict.setdefault('type', 'organization2')
+    _check_access('organization2_create', context, data_dict)
+    return _group_or_org_create(context, data_dict, is_org=True)
 
 @logic.auth_audit_exempt
 def rating_create(context, data_dict):

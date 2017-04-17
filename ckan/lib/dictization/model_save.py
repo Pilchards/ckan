@@ -281,6 +281,7 @@ def relationship_list_save(relationship_dicts, package, attr, context):
         relationship_list.append(relationship)
 
 def package_dict_save(pkg_dict, context):
+    #print "package_dict_save"
     model = context["model"]
     package = context.get("package")
     allow_partial_update = context.get("allow_partial_update", False)

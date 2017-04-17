@@ -132,10 +132,10 @@ class PackageController(base.BaseController):
         return pt
 
     def search(self):
+        #print 'search'
         from ckan.lib.search import SearchError, SearchQueryError
 
         package_type = self._guess_package_type()
-
         try:
             context = {'model': model, 'user': c.user,
                        'auth_user_obj': c.userobj}
@@ -149,7 +149,6 @@ class PackageController(base.BaseController):
         page = h.get_page_number(request.params)
 
         limit = int(config.get('ckan.datasets_per_page', 20))
-
         # most search operations should reset the page counter:
         params_nopage = [(k, v) for k, v in request.params.items()
                          if k != 'page']
@@ -224,7 +223,6 @@ class PackageController(base.BaseController):
             context = {'model': model, 'session': model.Session,
                        'user': c.user, 'for_view': True,
                        'auth_user_obj': c.userobj}
-
             if package_type and package_type != 'dataset':
                 # Only show datasets of this particular type
                 fq += ' +dataset_type:{type}'.format(type=package_type)
@@ -234,7 +232,6 @@ class PackageController(base.BaseController):
                 if not asbool(
                         config.get('ckan.search.show_all_types', 'False')):
                     fq += ' +dataset_type:dataset'
-
             facets = OrderedDict()
 
             default_facet_titles = {
@@ -250,7 +247,6 @@ class PackageController(base.BaseController):
                     facets[facet] = default_facet_titles[facet]
                 else:
                     facets[facet] = facet
-
             # Facet titles
             for plugin in p.PluginImplementations(p.IFacets):
                 facets = plugin.dataset_facets(facets, package_type)
@@ -306,10 +302,9 @@ class PackageController(base.BaseController):
                              'an integer').format(
                       parameter_name='_%s_limit' % facet))
             c.search_facets_limits[facet] = limit
-
         self._setup_template_variables(context, {},
                                        package_type=package_type)
-
+        #print c.page.items
         h.get_price_range(c.page.items)
         return render(self._search_template(package_type),
                       extra_vars={'dataset_type': package_type})
@@ -537,6 +532,7 @@ class PackageController(base.BaseController):
                                        package_type=package_type)
 
         new_template = self._new_template(package_type)
+        #print package_type
         return render(new_template,
                       extra_vars={'form_vars': form_vars,
                                   'form_snippet': form_snippet,

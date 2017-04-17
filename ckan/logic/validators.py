@@ -282,8 +282,11 @@ object_id_validators = {
     'changed group' : group_id_exists,
     'deleted group' : group_id_exists,
     'new organization' : group_id_exists,
+    'new organization2' : group_id_exists,
     'changed organization' : group_id_exists,
+    'changed organization2' : group_id_exists,
     'deleted organization' : group_id_exists,
+    'deleted organization2' : group_id_exists,
     'follow group' : group_id_exists,
     }
 

@@ -260,6 +260,7 @@ def update_config():
     env.install_gettext_callables(_, ungettext, newstyle=True)
     # custom filters
     env.filters['empty_and_escape'] = jinja_extensions.empty_and_escape
+    env.filters['other_extend'] = jinja_extensions.other_extend
     config['pylons.app_globals'].jinja_env = env
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
