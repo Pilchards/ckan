@@ -29,7 +29,7 @@
     {% endblock %}
 
     {% block basic_fields_price %}
-      {{ form.input('price', id='field-price', label=_('Price'), placeholder=_('How much is it?'), value=data.price, error=errors.price, classes=['control-full']) }}
+      {{ form.input('price', id='field-price', label=_('Price'), placeholder=_('How much is it?'), value=data.price, error=errors.price, classes=['control-full'], is_required=true) }}
     {% endblock %}
 
     {% if data.times %}
