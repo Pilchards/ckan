@@ -241,6 +241,8 @@ def package_update(context, data_dict):
     :rtype: dictionary
 
     '''
+    #print "package_update"
+    #print data_dict
     model = context['model']
     user = context['user']
     name_or_id = data_dict.get('id') or data_dict.get('name')
@@ -308,7 +310,9 @@ def package_update(context, data_dict):
     _get_action('package_owner_org_update')(context_org_update,
                                             {'id': pkg.id,
                                              'organization_id': pkg.owner_org})
-
+    #_get_action('package_owner_org_update')(context_org_update,
+    #                                        {'id': pkg.id,
+    #                                         'organization_id': pkg.owner_org2},other_org=True)
     # Needed to let extensions know the new resources ids
     model.Session.flush()
     if data.get('resources'):
@@ -479,7 +483,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
                             'image_upload', 'clear_upload')
 
     if is_org:
-        _check_access('organization_update', context, data_dict)
+        _check_access(group.type+'_update', context, data_dict)
     else:
         _check_access('group_update', context, data_dict)
 
@@ -523,7 +527,7 @@ def _group_or_org_update(context, data_dict, is_org=False):
         item.edit(group)
 
     if is_org:
-        activity_type = 'changed organization'
+        activity_type = 'changed '+data_dict['type']
     else:
         activity_type = 'changed group'
 
@@ -615,7 +619,8 @@ def organization_update(context, data_dict):
     # specify particular keys and they will be left at their existing
     # values. This includes: users, groups, tags, extras
     return _group_or_org_update(context, data_dict, is_org=True)
-
+def organization2_update(context, data_dict):
+    return _group_or_org_update(context, data_dict, is_org=True)
 def user_update(context, data_dict):
     '''Update a user account.
 
@@ -1025,7 +1030,7 @@ def send_email_notifications(context, data_dict):
     email_notifications.get_and_send_notifications_for_all_users()
 
 
-def package_owner_org_update(context, data_dict):
+def package_owner_org_update(context, data_dict,other_org = False):
     '''Update the owning organization of a dataset
 
     :param id: the name or id of the dataset to update
@@ -1038,7 +1043,7 @@ def package_owner_org_update(context, data_dict):
     user = context['user']
     name_or_id = data_dict.get('id')
     organization_id = data_dict.get('organization_id')
-
+    organization2_id = data_dict.get('organization2_id')
     _check_access('package_owner_org_update', context, data_dict)
 
     pkg = model.Package.get(name_or_id)
@@ -1051,10 +1056,12 @@ def package_owner_org_update(context, data_dict):
 
         # FIXME check we are in that org
         pkg.owner_org = org.id
-    else:
-        org = None
-        pkg.owner_org = None
 
+    if organization2_id:
+        org2 = model.Group.get(organization2_id)
+        if org2 is None or not org2.is_organization:
+            raise NotFound(_('Organization2 was not found.'))
+        pkg.owner_org2 = org2.id
     if context.get('add_revision', True):
         rev = model.repo.new_revision()
         rev.author = user
@@ -1066,7 +1073,6 @@ def package_owner_org_update(context, data_dict):
     members = model.Session.query(model.Member) \
         .filter(model.Member.table_id == pkg.id) \
         .filter(model.Member.capacity == 'organization')
-
     need_update = True
     for member_obj in members:
         if org and member_obj.group_id == org.id:
@@ -1084,9 +1090,8 @@ def package_owner_org_update(context, data_dict):
                                   group_id=org.id,
                                   state='active')
         model.Session.add(member_obj)
-
-    if not context.get('defer_commit'):
-        model.Session.commit()
+    #if not context.get('defer_commit'):
+    model.Session.commit()
 
 
 def _bulk_update_dataset(context, data_dict, update_dict):

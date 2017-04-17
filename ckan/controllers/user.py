@@ -725,7 +725,12 @@ class UserController(base.BaseController):
         data_dict = {'user_obj': c.userobj}
         self._setup_template_variables(context, data_dict)
         return render('user/dashboard_organizations.html')
-
+    def dashboard_organizations2(self):
+        context = {'for_view': True, 'user': c.user,
+                   'auth_user_obj': c.userobj}
+        data_dict = {'user_obj': c.userobj}
+        self._setup_template_variables(context, data_dict)
+        return render('user/dashboard_organizations2.html')
     def dashboard_groups(self):
         context = {'for_view': True, 'user': c.user,
                    'auth_user_obj': c.userobj}

@@ -127,6 +127,14 @@ def organization_create(context, data_dict=None):
         return {'success': True}
     return {'success': False,
             'msg': _('User %s not authorized to create organizations') % user}
+def organization2_create(context, data_dict=None):
+    user = context['user']
+    user = authz.get_user_id_for_username(user, allow_none=True)
+
+    if user and authz.check_config_permission('user_create_organizations2'):
+        return {'success': True}
+    return {'success': False,
+            'msg': _('User %s not authorized to create organizations2') % user}
 
 def rating_create(context, data_dict):
     # No authz check in the logic function

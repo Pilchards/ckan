@@ -319,6 +319,7 @@ def member_list(context, data_dict=None):
 
 
 def _group_or_org_list(context, data_dict, is_org=False):
+    #print '_group_or_org_list'
     model = context['model']
     api = context.get('api_version')
     groups = data_dict.get('groups')
@@ -363,7 +364,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
         query = model.Session.query(model.Group.id,
                                     model.Group.name,
                                     sqlalchemy.func.count(model.Group.id))
-
+        #print '+++++++++++++++++++++'
         query = query.filter(model.Member.group_id == model.Group.id) \
                      .filter(model.Member.table_id == model.Package.id) \
                      .filter(model.Member.table_name == 'package') \
@@ -371,7 +372,7 @@ def _group_or_org_list(context, data_dict, is_org=False):
     else:
         query = model.Session.query(model.Group.id,
                                     model.Group.name)
-
+    #print data_dict
     query = query.filter(model.Group.state == 'active')
 
     if groups:
@@ -386,13 +387,14 @@ def _group_or_org_list(context, data_dict, is_org=False):
 
     query = query.filter(model.Group.is_organization == is_org)
     query = query.filter(model.Group.type == group_type)
-
+    #print query
     if sort_info:
         sort_field = sort_info[0][0]
         sort_direction = sort_info[0][1]
         if sort_field == 'package_count':
             query = query.group_by(model.Group.id, model.Group.name)
             sort_model_field = sqlalchemy.func.count(model.Group.id)
+            #print query
         elif sort_field == 'name':
             sort_model_field = model.Group.name
         elif sort_field == 'title':
@@ -409,7 +411,6 @@ def _group_or_org_list(context, data_dict, is_org=False):
         query = query.offset(offset)
 
     groups = query.all()
-
     if all_fields:
         action = 'organization_show' if is_org else 'group_show'
         group_list = []
@@ -419,11 +420,10 @@ def _group_or_org_list(context, data_dict, is_org=False):
                         'include_groups', 'include_followers'):
                 if key not in data_dict:
                     data_dict[key] = False
-
+            #print data_dict
             group_list.append(logic.get_action(action)(context, data_dict))
     else:
         group_list = [getattr(group, ref_group_by) for group in groups]
-
     return group_list
 
 
@@ -529,6 +529,11 @@ def organization_list(context, data_dict):
     data_dict.setdefault('type', 'organization')
     return _group_or_org_list(context, data_dict, is_org=True)
 
+def organization2_list(context, data_dict):
+    _check_access('organization2_list', context, data_dict)
+    data_dict['groups'] = data_dict.pop('organizations2', [])
+    data_dict.setdefault('type', 'organization2')
+    return _group_or_org_list(context, data_dict, is_org=True)
 
 def group_list_authz(context, data_dict):
     '''Return the list of groups that the user is authorized to edit.
@@ -649,9 +654,8 @@ def organization_list_for_user(context, data_dict):
     sysadmin = authz.is_sysadmin(user)
 
     orgs_q = model.Session.query(model.Group) \
-        .filter(model.Group.is_organization == True) \
+        .filter(model.Group.type == data_dict['type']) \
         .filter(model.Group.state == 'active')
-
     if sysadmin:
         orgs_and_capacities = [(org, 'admin') for org in orgs_q.all()]
     else:
@@ -673,7 +677,6 @@ def organization_list_for_user(context, data_dict):
             .filter(model.Member.table_id == user_id) \
             .filter(model.Member.state == 'active') \
             .join(model.Group)
-
         group_ids = set()
         roles_that_cascade = \
             authz.check_config_permission('roles_that_cascade_to_sub_groups')
@@ -697,10 +700,11 @@ def organization_list_for_user(context, data_dict):
         orgs_q = orgs_q.filter(model.Group.id.in_(group_ids))
         orgs_and_capacities = [
             (org, group_ids_to_capacities[org.id]) for org in orgs_q.all()]
-
     context['with_capacity'] = True
+    #print data_dict
     orgs_list = model_dictize.group_list_dictize(orgs_and_capacities, context,
         with_package_counts=asbool(data_dict.get('include_dataset_count')))
+    #orgs_list = filter(lambda x:x['type'] == data_dict['type'],orgs_list)
     return orgs_list
 
 
@@ -1217,7 +1221,7 @@ def _group_or_org_show(context, data_dict, is_org=False):
 
     group = model.Group.get(id)
     context['group'] = group
-
+    #print group
     if asbool(data_dict.get('include_datasets', False)):
         packages_field = 'datasets'
     elif asbool(data_dict.get('include_dataset_count', True)):
@@ -1238,11 +1242,8 @@ def _group_or_org_show(context, data_dict, is_org=False):
     if not is_org and group.is_organization:
         raise NotFound
 
-    if is_org:
-        _check_access('organization_show', context, data_dict)
-    else:
+    if not is_org:
         _check_access('group_show', context, data_dict)
-
     group_dict = model_dictize.group_dictize(group, context,
                                              packages_field=packages_field,
                                              include_tags=include_tags,
@@ -1349,8 +1350,13 @@ def organization_show(context, data_dict):
 
     .. note:: Only its first 1000 datasets are returned
     '''
+    #print 'organization_show'
+    _check_access('organization_show', context, data_dict)
     return _group_or_org_show(context, data_dict, is_org=True)
-
+def organization2_show(context, data_dict):
+    #print 'organization2_show'
+    _check_access('organization2_show', context, data_dict)
+    return _group_or_org_show(context, data_dict, is_org=True)
 
 def group_package_show(context, data_dict):
     '''Return the datasets (packages) of a group.
@@ -1898,8 +1904,8 @@ def package_search(context, data_dict):
                 ).get_user_dataset_labels(context['auth_user_obj'])
 
         query = search.query_for(model.Package)
-        query.run(data_dict, permission_labels=labels)
 
+        query.run(data_dict, permission_labels=labels)
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
@@ -1936,7 +1942,7 @@ def package_search(context, data_dict):
     # create a lookup table of group name to title for all the groups and
     # organizations in the current search's facets.
     group_names = []
-    for field_name in ('groups', 'organization'):
+    for field_name in ('groups', 'organization','organization2'):
         group_names.extend(facets.get(field_name, {}).keys())
 
     groups = (session.query(model.Group.name, model.Group.title)
@@ -1955,7 +1961,7 @@ def package_search(context, data_dict):
         for key_, value_ in value.items():
             new_facet_dict = {}
             new_facet_dict['name'] = key_
-            if key in ('groups', 'organization'):
+            if key in ('groups', 'organization','organization2'):
                 display_name = group_titles_by_name.get(key_, key_)
                 display_name = display_name if display_name and display_name.strip() else key_
                 new_facet_dict['display_name'] = display_name
@@ -2629,7 +2635,6 @@ def organization_activity_list(context, data_dict):
             limit=limit, offset=offset)
     activity_objects = _filter_activity_by_user(_activity_objects,
             _activity_stream_get_filtered_users())
-
     return model_dictize.activity_list_dictize(activity_objects, context)
 
 
@@ -2796,7 +2801,29 @@ def organization_activity_list_html(context, data_dict):
 
     return activity_streams.activity_list_to_html(
         context, activity_stream, extra_vars)
+def organization2_activity_list_html(context, data_dict):
+    '''Return a organization's activity stream as HTML.
 
+    The activity stream is rendered as a snippet of HTML meant to be included
+    in an HTML page, i.e. it doesn't have any HTML header or footer.
+
+    :param id: the id or name of the organization
+    :type id: string
+
+    :rtype: string
+
+    '''
+    activity_stream = organization_activity_list(context, data_dict)
+    offset = int(data_dict.get('offset', 0))
+    extra_vars = {
+        'controller': 'organization2',
+        'action': 'activity',
+        'id': data_dict['id'],
+        'offset': offset,
+    }
+
+    return activity_streams.activity_list_to_html(
+        context, activity_stream, extra_vars)
 
 def recently_changed_packages_activity_list_html(context, data_dict):
     '''Return the activity stream of all recently changed packages as HTML.
@@ -3352,7 +3379,7 @@ def dashboard_activity_list(context, data_dict):
         else:
             activity['is_new'] = (
                 strptime(activity['timestamp'], fmt) > last_viewed)
-
+    #print activity_dicts[0]
     return activity_dicts
 
 

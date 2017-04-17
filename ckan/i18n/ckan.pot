@@ -772,6 +772,9 @@ msgstr ""
 msgid "{actor} created the organization {organization}"
 msgstr ""
 
+msgid "{actor} created the organization2 {organization2}"
+msgstr ""
+
 #: ckan/lib/activity_streams.py:103
 msgid "{actor} created the dataset {dataset}"
 msgstr ""

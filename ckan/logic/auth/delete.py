@@ -107,7 +107,18 @@ def organization_delete(context, data_dict):
         return {'success': False, 'msg': _('User %s not authorized to delete organization %s') % (user ,group.id)}
     else:
         return {'success': True}
-
+def organization2_delete(context, data_dict):
+    group = get_group_object(context, data_dict)
+    user = context['user']
+    if not authz.check_config_permission('user_delete_organizations2'):
+        return {'success': False,
+                'msg': _('User %s not authorized to delete organizations2') % user}
+    authorized = authz.has_user_permission_for_group_or_org(
+        group.id, user, 'delete')
+    if not authorized:
+        return {'success': False, 'msg': _('User %s not authorized to delete organization2 %s') % (user, group.id)}
+    else:
+        return {'success': True}
 def revision_undelete(context, data_dict):
     return {'success': False, 'msg': 'Not implemented yet in the auth refactor'}
 

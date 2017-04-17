@@ -59,10 +59,15 @@ def lookup_group_plugin(group_type=None):
     If the group type is None or cannot be found in the mapping, then the
     fallback behaviour is used.
     """
+
     if group_type is None:
         return _default_group_plugin
-    return _group_plugins.get(group_type, _default_organization_plugin
-        if group_type == 'organization' else _default_group_plugin)
+    if group_type == 'organization':
+        return _default_organization_plugin
+    elif group_type == 'organization2':
+        return _default_organization2_plugin
+    else:
+        return _default_group_plugin
 
 
 def lookup_group_controller(group_type=None):
@@ -217,6 +222,8 @@ def register_group_plugins(map):
                 from ckan.controllers.group import GroupController as controller_obj
             elif group_controller == 'organization':
                 from ckan.controllers.organization import OrganizationController as controller_obj
+            elif group_controller == 'organization2':
+                from ckan.controllers.organization2 import Organization2Controller as controller_obj
             if controller_obj is not None:
                 controller_obj.add_group_type(group_type)
 
@@ -238,8 +245,8 @@ def plugin_validate(plugin, context, data_dict, schema, action):
         result = plugin.validate(context, data_dict, schema, action)
         if result is not None:
             return result
-
-    return toolkit.navl_validate(data_dict, schema, context)
+    temp = toolkit.navl_validate(data_dict, schema, context)
+    return temp
 
 
 def get_permission_labels():
@@ -541,7 +548,43 @@ class DefaultOrganizationForm(DefaultGroupForm):
     def activity_template(self):
         return 'organization/activity_stream.html'
 
+class DefaultOrganization2Form(DefaultGroupForm):
+    def group_controller(self):
+        return 'organization2'
+
+    def group_form(self):
+        return 'organization2/new_organization2_form.html'
+
+    def setup_template_variables(self, context, data_dict):
+        pass
+
+    def new_template(self):
+        return 'organization2/new.html'
+
+    def about_template(self):
+        return 'organization2/about.html'
+
+    def index_template(self):
+        return 'organization2/index.html'
+
+    def admins_template(self):
+        return 'organization2/admins.html'
+
+    def bulk_process_template(self):
+        return 'organization2/bulk_process.html'
+
+    def read_template(self):
+        return 'organization2/read.html'
+
+    # don't override history_template - use group template for history
+
+    def edit_template(self):
+        return 'organization2/edit.html'
+
+    def activity_template(self):
+        return 'organization2/activity_stream.html'
 _default_organization_plugin = DefaultOrganizationForm()
+_default_organization2_plugin = DefaultOrganization2Form()
 
 
 class DefaultTranslation(object):
